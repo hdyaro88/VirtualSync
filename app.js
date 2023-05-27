@@ -36,7 +36,7 @@ app.get('/room', (req, res) => {
 })
 
 app.get('/:room', (req, res) => {
-    console.log(req.params.room)
+    // console.log(req.params.room)
     if(req.params.room !== 'notes' && req.params.room !== 'analyzer'){
         res.render('room', { roomId: req.params.room })
     }
@@ -59,8 +59,8 @@ app.get('/analyzer',function(req,res){
 
 io.on('connection', socket => {
     socket.on('join-room', (roomId, userId) => {
-        console.log(roomId);
-        console.log(userId);
+        // console.log(roomId);
+        // console.log(userId);
         socket.join(roomId);
         socket.broadcast.to(roomId).emit('user-connected', userId);
 
