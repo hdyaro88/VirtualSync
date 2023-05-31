@@ -19,13 +19,14 @@ app.set("view engine", "ejs");
 // app.use(express.urlencoded({ extended: true }));
 
 //adding static files like css
-app.use(express.static(path.join(__dirname, "assets")));
+// app.use(express.static(path.join(__dirname, "assets")));
+app.use(express.static(path.join(__dirname, "assets1")));
 app.use(express.static(path.join(__dirname, "public")));
 // app.use(express.static('/public'));
 app.use("/peerjs", peerServer);
 
 app.get("/", function (req, res) {
-  res.render("index");
+  res.render("index1");
 });
 
 app.get("/room", (req, res) => {
@@ -34,22 +35,22 @@ app.get("/room", (req, res) => {
 
 app.get("/:room", (req, res) => {
   console.log(req.params.room);
-  if (req.params.room !== "notes" && req.params.room !== "analyzer") {
+  if (req.params.room !== "notes1" && req.params.room !== "analyzer1") {
     res.render("room", { roomId: req.params.room });
   } else {
-    if (req.params.room == "notes") {
-      res.render("notes");
+    if (req.params.room == "notes1") {
+      res.render("notes1");
     } else {
-      res.render("analyzer");
+      res.render("analyzer1");
     }
   }
 });
 
-app.get("/notes", function (req, res) {
-  res.render("notes");
+app.get("/notes1", function (req, res) {
+  res.render("notes1");
 });
-app.get("/analyzer", function (req, res) {
-  res.render("analyzer");
+app.get("/analyzer1", function (req, res) {
+  res.render("analyzer1");
 });
 
 io.on("connection", (socket) => {

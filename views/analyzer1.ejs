@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Virtual Sync</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="./../assets1/img/favicon.png" rel="icon">
+  <link href="./../assets1/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="./../assets1/vendor/aos/aos.css" rel="stylesheet">
+  <link href="./../assets1/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="./../assets1/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="./../assets1/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="./../assets1/vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="./../assets1/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="./../assets1/css/style.css" rel="stylesheet">
+
+  <!-- =======================================================
+  * Template Name: FlexStart
+  * Updated: Mar 10 2023 with Bootstrap v5.2.3
+  * Template URL: https://bootstrapmade.com/flexstart-bootstrap-startup-template/
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top">
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+
+      <a href="index1.ejs" class="logo d-flex align-items-center">
+        <img src="./../assets1/img/logo.png" alt="">
+        <span>VirtualSync</span>
+      </a>
+
+      <nav id="navbar" class="navbar">
+        <ul>
+          <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
+          <li><a class="nav-link scrollto" href="#about">About</a></li>
+          <li><a class="nav-link scrollto" href="#services">Features</a></li>
+       
+          <li><a class="getstarted scrollto" href="#about">Get Started</a></li>
+        </ul>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+
+    </div>
+  </header><!-- End Header -->
+
+  <div class="services-section">
+    <div class="inner-width">
+      <h1 class="section-title">Attentiveness Tracker</h1>
+      <div class="border"></div>
+      <div class="services-container">
+          <button class="btn btn-1 btn-1b" type="button" onclick="init()"><h1>     Start</button></h1>
+          <div id="webcam-container" style="display: none;"></div>
+          <div id="label-container" style="color: white; margin-top: 25px;"></div>
+          <div id="chartContainer" style="height: 400px; width: 100%;"></div>
+
+       
+          <p  style="align-items: center; color:white; margin-top: 30px;">
+              Made with ❤ &nbsp;by <a href="./" style="color:  #82ccdd; text-decoration: none;">Sky Fall</a>
+          </p>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+<script type="text/javascript">
+  
+
+    // the link to your model provided by Teachable Machine export panel
+    const URL = "https://teachablemachine.withgoogle.com/models/XXHKJqiZj/";
+
+    let model, webcam, labelContainer, maxPredictions;
+
+    // Load the image model and setup the webcam
+    async function init() {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+
+        
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+        // Convenience function to setup a webcam
+        const flip = true; 
+        webcam = new tmImage.Webcam(200, 200, flip); 
+        await webcam.setup(); 
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // append elements to the DOM
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) { // and class labels
+            labelContainer.appendChild(document.createElement("div"));
+        }
+    }
+
+    async function loop() {
+        webcam.update(); // update the webcam frame
+        await predict();
+        window.requestAnimationFrame(loop);
+    }
+
+
+    var dataPoints = [{
+        y: 10
+    }, {
+        y: 20
+    }, {
+        y: 30
+    }, {
+        y: 40
+    }, {
+        y: 50
+    }, {
+        y: 60
+    }, {
+        y: 70
+    }, {
+        y: 80
+    }];
+    var chart = new CanvasJS.Chart("chartContainer", {
+        title: {
+            text: "Attentiveness Graph"
+        },
+        data: [{
+            type: "spline",
+            dataPoints: dataPoints
+        }]
+    });
+
+    chart.render();
+
+
+    // run the webcam image through the image model
+    // var arr = []
+    async function predict() {
+        // predict can take in an image, video or canvas html element
+        const prediction = await model.predict(webcam.canvas);
+
+
+
+        // arr.push(prediction[0].probability)
+        // console.log(arr)
+
+        for (let i = 0; i < maxPredictions; i++) {
+            const classPrediction =
+                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+            labelContainer.childNodes[i].innerHTML = classPrediction;
+
+        }
+
+        var yVal = prediction[0].probability * 100,
+            updateCount = 0;
+        var updateChart = function() {
+
+            yVal = prediction[0].probability * 100;
+            updateCount++;
+
+            dataPoints.push({
+                y: yVal
+            });
+
+            chart.options.title.text = "Attentiveness Graph";
+            setTimeout(function() {
+                chart.render()
+            }, 5000);
+
+        };
+
+        // update chart every second
+        setTimeout(function() {
+            updateChart()
+        }, 2000);
+
+    }
+</script>
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
+<!-- 
+    <div class="footer-newsletter">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-12 text-center">
+            <h4>Our Newsletter</h4>
+            <p>Tamen quem nulla quae legam multos aute sint culpa legam noster magna</p>
+          </div>
+          <div class="col-lg-6">
+            <form action="" method="post">
+              <input type="email" name="email"><input type="submit" value="Subscribe">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div> -->
+
+    <div class="footer-top">
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-5 col-md-12 footer-info">
+            <a href="index1.ejs" class="logo d-flex align-items-center">
+              <img src="./../assets1/img/logo.png" alt="">
+              <span>VirtualSync</span>
+            </a>
+            <p>Transforming education and virtual meetings with innovative features and seamless user experience.</p>
+            <!-- <div class="social-links mt-3">
+              <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+              <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+              <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+            </div> -->
+          </div>
+
+          <div class="col-lg-2 col-6 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Home</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#about">About us</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#values">Services</a></li>
+              <!-- <li><i class="bi bi-chevron-right"></i> <a href="#">Terms of service</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Privacy policy</a></li> -->
+            </ul>
+          </div>
+
+          <!-- <div class="col-lg-2 col-6 footer-links">
+            <h4>Our Services</h4>
+            <ul>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Web Design</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Web Development</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Product Management</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Marketing</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Graphic Design</a></li>
+            </ul>
+          </div> -->
+
+          <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
+            <h4>Contact Us</h4>
+            <p>
+              A108 Adam Street <br>
+              New York, NY 535022<br>
+              United States <br><br>
+              <strong>Phone:</strong> +1 5589 55488 55<br>
+              <strong>Email:</strong> info@example.com<br>
+            </p>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong><span>FlexStart</span></strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+        <!-- All the links in the footer should remain intact. -->
+        <!-- You can delete the links only if you purchased the pro version. -->
+        <!-- Licensing information: https://bootstrapmade.com/license/ -->
+        <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/flexstart-bootstrap-startup-template/ -->
+        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      </div>
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="./../assets1/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="./../assets1/vendor/aos/aos.js"></script>
+  <script src="./../assets1/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="./../assets1/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="./../assets1/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="./../assets1/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="./../assets1/vendor/php-email-form/validate.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="./../assets1/js/main.js"></script>
+
+</body>
+
+</html>
