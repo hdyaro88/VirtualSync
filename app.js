@@ -27,7 +27,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/peerjs", peerServer);
 
 
-app.get("/script", (req, res) => {
+app.get("/air_canvas", (req, res) => {
+  // res.render("air_canvas");
   var dataToSend;
   // spawn new child process to call the python script
   python = spawn("python", ["./Script/script.py"]);

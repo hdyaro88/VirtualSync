@@ -18,8 +18,6 @@ var noteContent = '';
 var notes = getAllNotes();
 renderNotes(notes);
 
-
-
 /*Voice Recognition*/
 
 // If false, the recording will stop after a few seconds of silence.
