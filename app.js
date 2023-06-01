@@ -35,13 +35,16 @@ app.get("/room", (req, res) => {
 
 app.get("/:room", (req, res) => {
   console.log(req.params.room);
-  if (req.params.room !== "notes1" && req.params.room !== "analyzer1") {
+  if (req.params.room !== "index1" && req.params.room !== "notes1" && req.params.room !== "analyzer1") {
     res.render("room", { roomId: req.params.room });
   } else {
     if (req.params.room == "notes1") {
       res.render("notes1");
-    } else {
+    } else if(req.params.room == "analyzer1") {
       res.render("analyzer1");
+    }
+    else{
+      res.render("index1");
     }
   }
 });
